@@ -30,14 +30,16 @@ int main(int argc, char *argv[]) {
 }
 
 void startProject(char projectName[]) {
-    // time_t seconds = time(NULL);
+    time_t seconds = time(NULL);
     printf("start timer for %s\n", projectName);
     return;
 }
 
 void stopProject(char projectName[]) {
-    // time_t seconds = time(NULL);
-    printf("stop timer for %s", projectName);
+    time_t seconds = time(NULL);
+    long startTime = 1734197431;
+    printf("stop timer for %s\n", projectName);
+    printf("%lu minuts", (seconds - startTime) / 60);
     return;
 }
 
