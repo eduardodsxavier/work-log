@@ -31,15 +31,27 @@ int main(int argc, char *argv[]) {
 
 void startProject(char projectName[]) {
     time_t seconds = time(NULL);
+    char str[11];
+    FILE *fptr = fopen("project.txt", "w");
+
+    fprintf(fptr, "%lu", seconds);
+
     printf("start timer for %s\n", projectName);
+    fclose(fptr);
     return;
 }
 
 void stopProject(char projectName[]) {
     time_t seconds = time(NULL);
-    long startTime = 1734197431;
+    char startTime[11];
+    FILE *fptr = fopen("project.txt", "r");
+
+    fgets(startTime, 11, fptr);
+    long numericStartTime = atoi(startTime);
+
     printf("stop timer for %s\n", projectName);
-    printf("%lu minuts", (seconds - startTime) / 60);
+    printf("project time: %lu min\n", (seconds - numericStartTime) / 60);
+    fclose(fptr);
     return;
 }
 
