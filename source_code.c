@@ -32,7 +32,10 @@ int main(int argc, char *argv[]) {
 void startProject(char projectName[]) {
     time_t seconds = time(NULL);
     char str[11];
-    FILE *fptr = fopen("project.txt", "w");
+    char file[15];
+    sprintf(file, "%s.txt", projectName);
+
+    FILE *fptr = fopen(file, "w");
 
     fprintf(fptr, "%lu", seconds);
 
@@ -44,7 +47,9 @@ void startProject(char projectName[]) {
 void stopProject(char projectName[]) {
     time_t seconds = time(NULL);
     char startTime[11];
-    FILE *fptr = fopen("project.txt", "r");
+    char file[15];
+    sprintf(file, "%s.txt", projectName);
+    FILE *fptr = fopen(file, "r");
 
     fgets(startTime, 11, fptr);
     long numericStartTime = atoi(startTime);
