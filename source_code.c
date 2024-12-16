@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-void startProject(char projectName[]);
-void stopProject(char projectName[]);
-void projectLog(char projectName[]);
+int startProject(char projectName[]);
+int stopProject(char projectName[]);
+int projectLog(char projectName[]);
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
@@ -29,38 +29,47 @@ int main(int argc, char *argv[]) {
     return 2;
 }
 
-void startProject(char projectName[]) {
+int startProject(char projectName[]) {
     time_t seconds = time(NULL);
     char str[11];
     char file[15];
-    sprintf(file, "%s.txt", projectName);
 
-    FILE *fptr = fopen(file, "w");
+    sprintf(file, "%s.txt", projectName);
+    FILE *fptr = fopen(file, "a");
 
     fprintf(fptr, "%lu", seconds);
 
     printf("start timer for %s\n", projectName);
     fclose(fptr);
-    return;
+    return 0;
 }
 
-void stopProject(char projectName[]) {
+int stopProject(char projectName[]) {
     time_t seconds = time(NULL);
     char startTime[11];
     char file[15];
     sprintf(file, "%s.txt", projectName);
-    FILE *fptr = fopen(file, "r");
+
+    FILE *fptr = fopen(file, "a+");
+
+    if (fptr == NULL) { 
+        printf("cannot open file: '%s'", file);
+        return 3;
+    }
 
     fgets(startTime, 11, fptr);
     long numericStartTime = atoi(startTime);
 
     printf("stop timer for %s\n", projectName);
     printf("project time: %lu min\n", (seconds - numericStartTime) / 60);
+
+    fprintf(fptr, " - %lu\n", seconds);
+
     fclose(fptr);
-    return;
+    return 0;
 }
 
-void projectLog(char projectName[]) {
+int projectLog(char projectName[]) {
     printf("show log for %s", projectName);
-    return;
+    return 0;
 }
