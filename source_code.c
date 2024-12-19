@@ -40,6 +40,9 @@ int startProject(char projectName[]) {
     }
 
     fprintf(fptr, "1");
+    fseek(fptr, 0, SEEK_END);
+
+    fprintf(fptr, "\n%lu", time(NULL));
 
     fclose(fptr);
     return 200;
@@ -59,6 +62,11 @@ int stopProject(char projectName[]) {
     }
 
     fprintf(fptr, "0");
+
+    fseek(fptr, 0, SEEK_END);
+
+    fprintf(fptr, "-%lu", time(NULL));
+
     fclose(fptr);
     return 200;
 }
