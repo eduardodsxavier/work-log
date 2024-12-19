@@ -6,70 +6,74 @@
 int startProject(char projectName[]);
 int stopProject(char projectName[]);
 int projectLog(char projectName[]);
+int projectStatus(char projectName[]);
 
 int main(int argc, char *argv[]) {
-    if (argc < 3) {
+    if (argc != 3) {
         printf("program must have at least 2 parameter");
-        return 1;
+        return 400;
     }
     if (strcmp(argv[1], "start") == 0) {
-        startProject(argv[2]);
-        return 0;
+        return startProject(argv[2]); 
     }
     if (strcmp(argv[1], "stop") == 0) {
-        stopProject(argv[2]);
-        return 0;
+        return stopProject(argv[2]);
     }
     if (strcmp(argv[1], "log") == 0) {
-        projectLog(argv[2]);
-        return 0;
+        return projectLog(argv[2]); 
     }
 
     printf("argv '%s' ins't a option", argv[1]);
-    return 2;
+    return 404;
 }
 
 int startProject(char projectName[]) {
-    time_t seconds = time(NULL);
-    char str[11];
-    char file[15];
+    FILE *fptr = fopen(projectName, "r+");
 
-    sprintf(file, "%s.txt", projectName);
-    FILE *fptr = fopen(file, "a");
+    if (fptr == NULL) { 
+        fptr = fopen(projectName, "w");
+    }
 
-    fprintf(fptr, "%lu", seconds);
+    if (projectStatus(projectName)) {
+        printf("timer of %s is alread in use", projectName);
+        return 500;
+    }
 
-    printf("start timer for %s\n", projectName);
+    fprintf(fptr, "1");
+
     fclose(fptr);
-    return 0;
+    return 200;
 }
 
 int stopProject(char projectName[]) {
-    time_t seconds = time(NULL);
-    char startTime[11];
-    char file[15];
-    sprintf(file, "%s.txt", projectName);
-
-    FILE *fptr = fopen(file, "a+");
+    FILE *fptr = fopen(projectName, "r+");
 
     if (fptr == NULL) { 
-        printf("cannot open file: '%s'", file);
-        return 3;
+        printf("cannot open file: '%s'", projectName);
+        return 404;
     }
 
-    fgets(startTime, 11, fptr);
-    long numericStartTime = atoi(startTime);
+    if (!projectStatus(projectName)) {
+        printf("timer of %s is not in use", projectName);
+        return 500;
+    }
 
-    printf("stop timer for %s\n", projectName);
-    printf("project time: %lu min\n", (seconds - numericStartTime) / 60);
-
-    fprintf(fptr, " - %lu\n", seconds);
-
+    fprintf(fptr, "0");
     fclose(fptr);
-    return 0;
+    return 200;
 }
 
 int projectLog(char projectName[]) {
     printf("show log for %s", projectName);
-    return 0;
+    return 200;
+}
+
+int projectStatus(char projectName[]) {
+    char status[2];
+
+    FILE *fptr = fopen(projectName, "r");
+    fgets(status, 2, fptr);
+    fclose(fptr);
+
+    return atoi(status);
 }
