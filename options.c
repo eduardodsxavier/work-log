@@ -55,7 +55,25 @@ int stopProject(char projectName[]) {
 }
 
 int projectLog(char projectName[]) {
-    printf("show log for %s.", projectName);
+    FILE *fptr = fopen(projectName, "r");
+
+    if (NULL == fptr) {
+        printf("cannot find file: '%s'.", projectName);
+        return 404;
+    }
+
+    if (projectStatus(projectName)) {
+        printf("must stop timer of %s before see the project log.", projectName);
+        return 500;
+    }
+
+    char ch;
+    fseek(fptr, 2, SEEK_SET);
+
+    while ((ch = fgetc(fptr)) != EOF) {
+        printf("%c", ch);
+    }
+
+    fclose(fptr);
     return 200;
 }
-
