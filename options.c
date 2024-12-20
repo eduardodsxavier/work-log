@@ -4,13 +4,13 @@
 #include <string.h>
 
 int projectStatus(char projectName[]) {
-    char status[2];
+    char status;
     FILE *fptr = fopen(projectName, "r");
 
-    fgets(status, 2, fptr);
+    status = fgetc(fptr);
 
     fclose(fptr);
-    return atoi(status);
+    return status - '0';
 }
 
 int startProject(char projectName[]) {
@@ -67,12 +67,15 @@ int projectLog(char projectName[]) {
         return 500;
     }
 
-    char ch;
     fseek(fptr, 2, SEEK_SET);
 
-    while ((ch = fgetc(fptr)) != EOF) {
-        printf("%c", ch);
-    }
+    char startTime[11];
+    char endTime[11];
+
+    fgets(startTime, 11, fptr);
+    fgetc(fptr);
+    fgets(endTime, 11, fptr);
+    printf("%d", (atoi(endTime) - atoi(startTime)));
 
     fclose(fptr);
     return 200;
