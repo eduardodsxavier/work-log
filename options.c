@@ -4,8 +4,11 @@
 #include <string.h>
 
 int projectStatus(char projectName[]) {
+    char copy[20];
+    strcpy(copy, projectName);
+    strcat(copy, "Stats");
     char status;
-    FILE *fptr = fopen(projectName, "r");
+    FILE *fptr = fopen(copy, "r");
 
     status = fgetc(fptr);
 
@@ -13,8 +16,37 @@ int projectStatus(char projectName[]) {
     return status - '0';
 }
 
+void changeProjectStatus(char projectName[]) {
+    char copy[20];
+    char stats = projectStatus(projectName);
+
+    strcpy(copy, projectName);
+    strcat(copy, "Stats");
+    FILE *fptr = fopen(copy, "w");
+
+    if (stats) {
+        fprintf(fptr, "0");       
+    }
+    else {
+        fprintf(fptr, "1");       
+    }
+    fclose(fptr);
+    return;
+}
+
 int startProject(char projectName[]) {
     FILE *fptr = fopen(projectName, "r+");
+
+    char copy[20];
+    strcpy(copy, projectName);
+    strcat(copy, "Stats");
+    FILE *fptrStats = fopen(copy, "r+");
+
+    if (fptrStats == NULL) { 
+        fptrStats = fopen(copy, "w");
+        fprintf(fptrStats, "0");
+    }
+    fclose(fptrStats);
 
     if (fptr == NULL) { 
         fptr = fopen(projectName, "w");
@@ -25,9 +57,9 @@ int startProject(char projectName[]) {
         return 500;
     }
 
-    fprintf(fptr, "1");
+    changeProjectStatus(projectName);
     fseek(fptr, 0, SEEK_END);
-    fprintf(fptr, "\n%lu", time(NULL));
+    fprintf(fptr, "%lu", time(NULL));
 
     fclose(fptr);
     return 200;
@@ -46,9 +78,10 @@ int stopProject(char projectName[]) {
         return 500;
     }
 
-    fprintf(fptr, "0");
+    changeProjectStatus(projectName);
+
     fseek(fptr, 0, SEEK_END);
-    fprintf(fptr, "-%lu", time(NULL));
+    fprintf(fptr, "-%lu\n", time(NULL));
 
     fclose(fptr);
     return 200;
@@ -71,11 +104,11 @@ int projectLog(char projectName[]) {
 
     char startTime[11];
     char endTime[11];
-
+        
     fgets(startTime, 11, fptr);
     fgetc(fptr);
     fgets(endTime, 11, fptr);
-    printf("%d", (atoi(endTime) - atoi(startTime)));
+    printf("%d min", (atoi(endTime) - atoi(startTime)) / 60);
 
     fclose(fptr);
     return 200;
