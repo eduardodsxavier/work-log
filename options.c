@@ -3,10 +3,14 @@
 #include <stdio.h>
 #include <string.h>
 
+void giveFileName(char projectName[], char type[], char copy[]) {
+    strcpy(copy, projectName);
+    strcat(copy, type);
+}
+
 int projectStatus(char projectName[]) {
     char copy[20];
-    strcpy(copy, projectName);
-    strcat(copy, "Stats");
+    giveFileName(projectName, "Stats", copy);
     char status;
     FILE *fptr = fopen(copy, "r");
 
@@ -18,10 +22,9 @@ int projectStatus(char projectName[]) {
 
 void changeProjectStatus(char projectName[]) {
     char copy[20];
-    char stats = projectStatus(projectName);
+    giveFileName(projectName, "Stats", copy);
 
-    strcpy(copy, projectName);
-    strcat(copy, "Stats");
+    char stats = projectStatus(projectName);
     FILE *fptr = fopen(copy, "w");
 
     if (stats) {
@@ -36,8 +39,8 @@ void changeProjectStatus(char projectName[]) {
 
 int getProjectCount(char projectName[]) {
     char copy[20];
-    strcpy(copy, projectName);
-    strcat(copy, "Count");
+    giveFileName(projectName, "Count", copy);
+
     FILE *fptr = fopen(copy, "r+");
 
     fseek (fptr, 0, SEEK_END);
@@ -53,8 +56,8 @@ int startProject(char projectName[]) {
     FILE *fptr = fopen(projectName, "r+");
 
     char copy[20];
-    strcpy(copy, projectName);
-    strcat(copy, "Stats");
+    giveFileName(projectName, "Stats", copy);
+
     FILE *fptrStats = fopen(copy, "r+");
 
     if (fptrStats == NULL) { 
@@ -63,8 +66,8 @@ int startProject(char projectName[]) {
     }
     fclose(fptrStats);
 
-    strcpy(copy, projectName);
-    strcat(copy, "Count");
+    giveFileName(projectName, "Count", copy);
+
     FILE *fptrCount = fopen(copy, "r+");
 
     if (fptrCount == NULL) { 
@@ -108,8 +111,8 @@ int stopProject(char projectName[]) {
     int count = getProjectCount(projectName);
 
     char copy[20];
-    strcpy(copy, projectName);
-    strcat(copy, "Count");
+    giveFileName(projectName, "Count", copy);
+
     FILE *fptrCount = fopen(copy, "w");
 
     fprintf(fptrCount, "%d", count + 1);
@@ -134,8 +137,6 @@ int projectLog(char projectName[]) {
         return 500;
     }
 
-    fseek(fptr, 2, SEEK_SET);
-
     char startTime[11];
     char endTime[11];
     int count = getProjectCount(projectName);
@@ -144,6 +145,7 @@ int projectLog(char projectName[]) {
         fgets(startTime, 11, fptr);
         fgetc(fptr);
         fgets(endTime, 11, fptr);
+        fgetc(fptr);
         printf("log%d: %d min\n", i,  (atoi(endTime) - atoi(startTime)) / 60);
     }
 
