@@ -93,14 +93,19 @@ int projectLog(char projectName[]) {
     char startTime[11];
     char endTime[11];
     int count = getProjectCount(projectName);
+    int totalTime = 0;
 
     for (int i = 0; i < count; i++) {
         fgets(startTime, 11, fptr);
         fgetc(fptr);
         fgets(endTime, 11, fptr);
         fgetc(fptr);
-        printf("log%d: %d min\n", i,  (atoi(endTime) - atoi(startTime)) / 60);
+        int time = (atoi(endTime) - atoi(startTime));
+        printf("log%d: %d min\n", i, time / 60);
+        totalTime += time;
     }
+
+    printf("total time of project: %d", totalTime / 60);
 
     fclose(fptr);
     return 200;
