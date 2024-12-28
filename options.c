@@ -39,9 +39,10 @@ int startProject(char projectName[]) {
     }
 
     changeProjectStatus(projectName);
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
     fseek(fptr, 0, SEEK_END);
-    fprintf(fptr, "%lu", time(NULL));
-
+    fprintf(fptr, " %d-%02d-%02d:%lu", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, time(NULL));
     fclose(fptr);
     return 200;
 }
@@ -92,20 +93,23 @@ int projectLog(char projectName[]) {
 
     char startTime[11];
     char endTime[11];
+    char date[12];
     int count = getProjectCount(projectName);
     int totalTime = 0;
 
     for (int i = 0; i < count; i++) {
+        fgets(date, 12, fptr);
+        fgetc(fptr);
         fgets(startTime, 11, fptr);
         fgetc(fptr);
         fgets(endTime, 11, fptr);
         fgetc(fptr);
         int time = (atoi(endTime) - atoi(startTime));
-        printf("log%d: %d min\n", i, time / 60);
+        printf("log%s: %d min.\n", date, time / 60);
         totalTime += time;
     }
 
-    printf("total time of project: %d", totalTime / 60);
+    printf("total time of project: %dmin.", totalTime / 60);
 
     fclose(fptr);
     return 200;
