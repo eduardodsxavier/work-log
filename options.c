@@ -2,36 +2,41 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "getInfo.c"
 
+struct stat st = {0};
+
 int startProject(char projectName[]) {
-    FILE *fptr = fopen(projectName, "r+");
+    char fileName[20];
+    if (stat(projectName, &st) == -1) {
+        mkdir(projectName, 0700);
+    }
 
-    char copy[20];
-    giveFileName(projectName, "Stats", copy);
+    giveFileName(projectName, "logs", fileName);
+    FILE *fptrLogs = fopen(fileName, "r+");
+    if (fptrLogs == NULL) { 
+        fptrLogs = fopen(fileName, "w");
+    }
 
-    FILE *fptrStats = fopen(copy, "r+");
-
+    giveFileName(projectName, "stats", fileName);
+    FILE *fptrStats = fopen(fileName, "r+");
     if (fptrStats == NULL) { 
-        fptrStats = fopen(copy, "w");
+        fptrStats = fopen(fileName, "w");
         fprintf(fptrStats, "0");
     }
     fclose(fptrStats);
 
-    giveFileName(projectName, "Count", copy);
-
-    FILE *fptrCount = fopen(copy, "r+");
-
+    giveFileName(projectName, "count", fileName);
+    FILE *fptrCount = fopen(fileName, "r+");
     if (fptrCount == NULL) { 
-        fptrCount = fopen(copy, "w");
+        fptrCount = fopen(fileName, "w");
         fprintf(fptrCount, "0");
     }
     fclose(fptrCount);
-
-    if (fptr == NULL) { 
-        fptr = fopen(projectName, "w");
-    }
 
     if (projectStatus(projectName)) {
         printf("must stop timer of %s before start it again.", projectName);
@@ -41,19 +46,22 @@ int startProject(char projectName[]) {
     changeProjectStatus(projectName);
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    fseek(fptr, 0, SEEK_END);
-    fprintf(fptr, " %d-%02d-%02d:%lu", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, time(NULL));
-    fclose(fptr);
+    fseek(fptrLogs, 0, SEEK_END);
+    fprintf(fptrLogs, " %d-%02d-%02d:%lu", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, time(NULL));
+    fclose(fptrLogs);
     return 200;
 }
 
 int stopProject(char projectName[]) {
-    FILE *fptr = fopen(projectName, "r+");
-
-    if (fptr == NULL) { 
-        printf("cannot find file: '%s'.", projectName);
+    char fileName[20];
+    if (stat(projectName, &st) == -1) {
+        printf("cannot find project: '%s'.", projectName);
         return 404;
     }
+
+    giveFileName(projectName, "logs", fileName);
+    FILE *fptrLogs = fopen(fileName, "r+");
+
 
     if (!projectStatus(projectName)) {
         printf("must start time of %s before stop it.", projectName);
@@ -64,27 +72,29 @@ int stopProject(char projectName[]) {
 
     int count = getProjectCount(projectName);
 
-    char copy[20];
-    giveFileName(projectName, "Count", copy);
+    giveFileName(projectName, "count", fileName);
 
-    FILE *fptrCount = fopen(copy, "w");
+    FILE *fptrCount = fopen(fileName, "w");
 
     fprintf(fptrCount, "%d", count + 1);
 
-    fseek(fptr, 0, SEEK_END);
-    fprintf(fptr, "-%lu\n", time(NULL));
+    fseek(fptrLogs, 0, SEEK_END);
+    fprintf(fptrLogs, "-%lu\n", time(NULL));
 
-    fclose(fptr);
+    fclose(fptrLogs);
+    fclose(fptrCount);
     return 200;
 }
 
 int projectLog(char projectName[]) {
-    FILE *fptr = fopen(projectName, "r");
-
-    if (NULL == fptr) {
-        printf("cannot find file: '%s'.", projectName);
+    char fileName[20];
+    if (stat(projectName, &st) == -1) {
+        printf("cannot find project: '%s'.", projectName);
         return 404;
     }
+
+    giveFileName(projectName, "logs", fileName);
+    FILE *fptrLogs = fopen(fileName, "r+");
 
     if (projectStatus(projectName)) {
         printf("must stop timer of %s before see the project log.", projectName);
@@ -98,19 +108,19 @@ int projectLog(char projectName[]) {
     int totalTime = 0;
 
     for (int i = 0; i < count; i++) {
-        fgets(date, 12, fptr);
-        fgetc(fptr);
-        fgets(startTime, 11, fptr);
-        fgetc(fptr);
-        fgets(endTime, 11, fptr);
-        fgetc(fptr);
+        fgets(date, 12, fptrLogs);
+        fgetc(fptrLogs);
+        fgets(startTime, 11, fptrLogs);
+        fgetc(fptrLogs);
+        fgets(endTime, 11, fptrLogs);
+        fgetc(fptrLogs);
         int time = (atoi(endTime) - atoi(startTime));
         printf("log%s: %d min.\n", date, time / 60);
         totalTime += time;
     }
 
-    printf("total time of project: %dmin.", totalTime / 60);
+    printf("total time on project: %dmin.", totalTime / 60);
 
-    fclose(fptr);
+    fclose(fptrLogs);
     return 200;
 }

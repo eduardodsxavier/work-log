@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 
-void giveFileName(char projectName[], char type[], char copy[]) {
-    strcpy(copy, projectName);
-    strcat(copy, type);
+void giveFileName(char projectName[], char type[], char fileName[]) {
+    strcpy(fileName, projectName);
+    strcat(fileName, "/");
+    strcat(fileName, type);
 }
 
 int projectStatus(char projectName[]) {
-    char copy[20];
-    giveFileName(projectName, "Stats", copy);
+    char fileName[20];
+    giveFileName(projectName, "stats", fileName);
     char status;
-    FILE *fptr = fopen(copy, "r");
+    FILE *fptr = fopen(fileName, "r");
 
     status = fgetc(fptr);
 
@@ -20,11 +21,11 @@ int projectStatus(char projectName[]) {
 }
 
 void changeProjectStatus(char projectName[]) {
-    char copy[20];
-    giveFileName(projectName, "Stats", copy);
+    char fileName[20];
+    giveFileName(projectName, "stats", fileName);
 
     char stats = projectStatus(projectName);
-    FILE *fptr = fopen(copy, "w");
+    FILE *fptr = fopen(fileName, "w");
 
     if (stats) {
         fprintf(fptr, "0");       
@@ -37,10 +38,10 @@ void changeProjectStatus(char projectName[]) {
 }
 
 int getProjectCount(char projectName[]) {
-    char copy[20];
-    giveFileName(projectName, "Count", copy);
+    char fileName[20];
+    giveFileName(projectName, "count", fileName);
 
-    FILE *fptr = fopen(copy, "r+");
+    FILE *fptr = fopen(fileName, "r+");
 
     fseek (fptr, 0, SEEK_END);
     int length = ftell (fptr);
