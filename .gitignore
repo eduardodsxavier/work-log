@@ -1,4 +1,5 @@
 remember_c
 a.out
 project*
-workLog*
+.workLog*
+
