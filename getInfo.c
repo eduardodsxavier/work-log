@@ -2,15 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 
-void giveFileName(char projectName[], char type[], char fileName[]) {
-    strcpy(fileName, projectName);
+void giveFileName(char type[], char fileName[]) {
+    strcpy(fileName, "workLog");
     strcat(fileName, "/");
     strcat(fileName, type);
 }
 
-int projectStatus(char projectName[]) {
+int projectStatus() {
     char fileName[20];
-    giveFileName(projectName, "stats", fileName);
+    giveFileName("stats", fileName);
     char status;
     FILE *fptr = fopen(fileName, "r");
 
@@ -20,11 +20,11 @@ int projectStatus(char projectName[]) {
     return status - '0';
 }
 
-void changeProjectStatus(char projectName[]) {
+void changeProjectStatus() {
     char fileName[20];
-    giveFileName(projectName, "stats", fileName);
+    giveFileName("stats", fileName);
 
-    char stats = projectStatus(projectName);
+    char stats = projectStatus();
     FILE *fptr = fopen(fileName, "w");
 
     if (stats) {
@@ -37,9 +37,9 @@ void changeProjectStatus(char projectName[]) {
     return;
 }
 
-int getProjectCount(char projectName[]) {
+int getProjectCount() {
     char fileName[20];
-    giveFileName(projectName, "count", fileName);
+    giveFileName("count", fileName);
 
     FILE *fptr = fopen(fileName, "r+");
 

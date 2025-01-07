@@ -10,19 +10,19 @@
 
 struct stat st = {0};
 
-int startProject(char projectName[]) {
+int startProject() {
     char fileName[20];
-    if (stat(projectName, &st) == -1) {
-        mkdir(projectName, 0700);
+    if (stat("workLog", &st) == -1) {
+        mkdir("workLog", 0700);
     }
 
-    giveFileName(projectName, "logs", fileName);
+    giveFileName("logs", fileName);
     FILE *fptrLogs = fopen(fileName, "r+");
     if (fptrLogs == NULL) { 
         fptrLogs = fopen(fileName, "w");
     }
 
-    giveFileName(projectName, "stats", fileName);
+    giveFileName("stats", fileName);
     FILE *fptrStats = fopen(fileName, "r+");
     if (fptrStats == NULL) { 
         fptrStats = fopen(fileName, "w");
@@ -30,7 +30,7 @@ int startProject(char projectName[]) {
     }
     fclose(fptrStats);
 
-    giveFileName(projectName, "count", fileName);
+    giveFileName("count", fileName);
     FILE *fptrCount = fopen(fileName, "r+");
     if (fptrCount == NULL) { 
         fptrCount = fopen(fileName, "w");
@@ -38,41 +38,41 @@ int startProject(char projectName[]) {
     }
     fclose(fptrCount);
 
-    if (projectStatus(projectName)) {
-        printf("must stop timer of %s before start it again.", projectName);
+    if (projectStatus()) {
+        printf("must stop timer of project before start it again.");
         return 500;
     }
 
-    changeProjectStatus(projectName);
+    changeProjectStatus();
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
     fseek(fptrLogs, 0, SEEK_END);
-    fprintf(fptrLogs, " %d-%02d-%02d:%lu", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, time(NULL));
+    fprintf(fptrLogs, " %02d-%02d-%02d:%lu", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900, time(NULL));
     fclose(fptrLogs);
     return 200;
 }
 
-int stopProject(char projectName[]) {
+int stopProject() {
     char fileName[20];
-    if (stat(projectName, &st) == -1) {
-        printf("cannot find project: '%s'.", projectName);
+    if (stat("workLog", &st) == -1) {
+        printf("cannot find directory 'workLog'.");
         return 404;
     }
 
-    giveFileName(projectName, "logs", fileName);
+    giveFileName("logs", fileName);
     FILE *fptrLogs = fopen(fileName, "r+");
 
 
-    if (!projectStatus(projectName)) {
-        printf("must start time of %s before stop it.", projectName);
+    if (!projectStatus()) {
+        printf("must start time of the project before stop it.");
         return 500;
     }
 
-    changeProjectStatus(projectName);
+    changeProjectStatus();
 
-    int count = getProjectCount(projectName);
+    int count = getProjectCount();
 
-    giveFileName(projectName, "count", fileName);
+    giveFileName("count", fileName);
 
     FILE *fptrCount = fopen(fileName, "w");
 
@@ -86,25 +86,25 @@ int stopProject(char projectName[]) {
     return 200;
 }
 
-int projectLog(char projectName[]) {
+int projectLog() {
     char fileName[20];
-    if (stat(projectName, &st) == -1) {
-        printf("cannot find project: '%s'.", projectName);
+    if (stat("workLog", &st) == -1) {
+        printf("cannot find directory 'workLog'");
         return 404;
     }
 
-    giveFileName(projectName, "logs", fileName);
+    giveFileName("logs", fileName);
     FILE *fptrLogs = fopen(fileName, "r+");
 
-    if (projectStatus(projectName)) {
-        printf("must stop timer of %s before see the project log.", projectName);
+    if (projectStatus()) {
+        printf("must stop timer of the project before see the project log.");
         return 500;
     }
 
     char startTime[11];
     char endTime[11];
     char date[12];
-    int count = getProjectCount(projectName);
+    int count = getProjectCount();
     int totalTime = 0;
 
     for (int i = 0; i < count; i++) {
