@@ -1,11 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
+
+struct stat st = {0};
 
 void giveFileName(char type[], char fileName[]) {
-    strcpy(fileName, "workLog");
+    strcpy(fileName, ".workLog");
     strcat(fileName, "/");
     strcat(fileName, type);
+}
+
+int dirExist() {
+    return stat(".workLog", &st) == -1;
 }
 
 int projectStatus() {

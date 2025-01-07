@@ -8,12 +8,10 @@
 
 #include "getInfo.c"
 
-struct stat st = {0};
-
 int startProject() {
     char fileName[20];
-    if (stat("workLog", &st) == -1) {
-        mkdir("workLog", 0700);
+    if (dirExist()) {
+        mkdir(".workLog", 0700);
     }
 
     giveFileName("logs", fileName);
@@ -54,8 +52,8 @@ int startProject() {
 
 int stopProject() {
     char fileName[20];
-    if (stat("workLog", &st) == -1) {
-        printf("cannot find directory 'workLog'.");
+    if (dirExist()) {
+        printf("cannot find directory '.workLog'.");
         return 404;
     }
 
@@ -88,8 +86,8 @@ int stopProject() {
 
 int projectLog() {
     char fileName[20];
-    if (stat("workLog", &st) == -1) {
-        printf("cannot find directory 'workLog'");
+    if (dirExist()) {
+        printf("cannot find directory '.workLog'");
         return 404;
     }
 
